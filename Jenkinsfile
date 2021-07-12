@@ -1,14 +1,35 @@
 pipeline {
+  environment {
+    registry = "asia.gcr.io/allcare-systems/cicd"
+    registryCredential = 'allcare'
+    dockerImage = ''
+  }
   agent any
   stages {
-    stage("Build") {
+    stage('Cloning Git') {
       steps {
-        sh "docker build -t kiplink/cicd:1.0 ."
+        git 'https://github.com/kiplink/cicd.git'
       }
     }
-    stage('Push image') {
-      docker.withRegistry('https://registry.hub.docker.com', 'DockerHub') {
-        sh 'docker push kiplink/cicd-local:1.0'
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+        script {
+          docker.withRegistry( 'https://asia.gcr.io', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $registry:$BUILD_NUMBER"
       }
     }
   }
