@@ -4,7 +4,7 @@ pipeline {
         PROJECT_ID = 'allcare-systems'
         CLUSTER_NAME = 'allcare'
         LOCATION = 'asia-southeast2-a'
-        CREDENTIALS_ID = 'gke'
+        CREDENTIALS_ID = 'gke-sa'
     }
     stages {
         stage("Checkout code") {
@@ -15,7 +15,7 @@ pipeline {
         stage("Build image") {
             steps {
                 script {
-                    myapp = docker.build("asia.gcr.io/allcare/systems/cicd-test:${env.BUILD_ID}")
+                    myapp = docker.build("asia.gcr.io/allcare-systems/cicd-test:${env.BUILD_ID}")
                 }
             }
         }
