@@ -9,9 +9,14 @@ pipeline {
     IMAGE_TAG = "asia.gcr.io/${PROJECT}/${APP_NAME}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
     JENKINS_CRED = "allcare"
   }
-
+  
   agent any
   stages {
+    stage('Test') {
+      steps {
+        sh 'nginx -t'
+      }
+    }
     stage('Build') {
       steps{
         script {
