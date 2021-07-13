@@ -17,25 +17,5 @@ pipeline {
         }
       }
     }
-    stage('Push Image') {
-      steps {
-        script {
-          docker.withRegistry( '', registryCredential )    {
-            dockerImage.push()
-          }
-        }
-      }
-    }
-    stage('Deploy Dev') {
-      // Developer Branches
-      when {
-        not { branch 'master' }
-      }
-      steps {
-        echo 'Deployment started ...'
-        step([$class: 'KubernetesEngineBuilder', projectId: 'allcare-systems', clusterName: 'allcare', location: 'asia-southeast2-a', manifestPattern: 'deployment.yaml', credentialsId: 'allcare', verifyDeployments: true])
-        echo "Deployment Finished ..."
-      }
-    }
   }
 }
