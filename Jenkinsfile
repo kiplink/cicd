@@ -11,14 +11,14 @@ pipeline {
       }
     }
     stage('Build') {
-      steps{
+      steps {
         script {
           dockerImage = docker.build registry + ":$BUILD_NUMBER"
         }
       }
     }
     stage('Push Image') {
-      steps{
+      steps {
         script {
           docker.withRegistry( '', registryCredential )    {
             dockerImage.push()
@@ -31,7 +31,7 @@ pipeline {
       when {
         not { branch 'master' }
       }
-      steps{
+      steps {
         echo 'Deployment started ...'
         step([$class: 'KubernetesEngineBuilder', projectId: 'allcare-systems', clusterName: 'allcare', location: 'asia-southeast2-a', manifestPattern: 'deployment.yaml', credentialsId: 'allcare', verifyDeployments: true])
         echo "Deployment Finished ..."
