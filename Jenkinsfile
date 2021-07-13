@@ -1,5 +1,9 @@
 pipeline {
   agent any
+  environment {
+    registry = "asia.gcr.io/allcare-systems/cicd-test"
+    registryCredential = 'allcare'
+  }
   stages {
     stage('Git Clone') {
       steps {
@@ -9,14 +13,14 @@ pipeline {
     stage('Build') {
       steps{
         script {
-          dockerImage = docker.build asia.gcr.io/allcare-systems/cicd + ":$BRANCH_NAME-$BUILD_NUMBER"
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
         }
       }
     }
     stage('Push Image') {
       steps{
         script {
-          docker.withRegistry( '', 'allcare' )    {
+          docker.withRegistry( '', registryCredential )    {
             dockerImage.push()
           }
         }
