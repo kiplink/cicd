@@ -12,15 +12,6 @@ pipeline {
 
   agent any
   stages {
-    stage('Test') {
-      steps {
-        container('nginx') {
-          sh """
-          curl localhost
-          """
-        }
-      }
-    }
     stage('Build') {
       steps{
         script {
