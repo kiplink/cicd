@@ -17,6 +17,6 @@ spec:
       - name: regcred
       containers:
       - name: cicd
-        image: asia.ghcr.io/allcare-systems/cicd
+        image: asia.ghcr.io/allcare-systems/cicd-test
         ports:
         - containerPort: 80
