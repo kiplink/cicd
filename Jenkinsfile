@@ -1,35 +1,51 @@
 pipeline {
+
   environment {
-    registry = "asia.gcr.io/allcare-systems/cicd"
-    registryCredential = 'allcare'
-    dockerImage = ''
+    PROJECT = "allcare-systems"
+    APP_NAME = "cicd"
+    FE_SVC_NAME = "${APP_NAME}-frontend"
+    CLUSTER = "allcare"
+    CLUSTER_ZONE = "asia-southeast2-a"
+    IMAGE_TAG = "asia.gcr.io/${PROJECT}/${APP_NAME}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+    JENKINS_CRED = "allcare"
   }
+
   agent any
   stages {
-    stage('Cloning Git') {
+    stage('Test') {
       steps {
-        git 'https://github.com/kiplink/cicd.git'
-      }
-    }
-    stage('Building image') {
-      steps{
-        script {
-          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+        container('nginx') {
+          sh """
+          curl localhost
+          """
         }
       }
     }
-    stage('Deploy Image') {
+    stage('Build') {
       steps{
         script {
-          docker.withRegistry( '', registryCredential ) {
+          dockerImage = docker.build env.IMAGE_TAG
+        }
+      }
+    }
+    stage('Push Image') {
+      steps{
+        script {
+          docker.withRegistry( '', env.JENKINS_CRED )    {
             dockerImage.push()
           }
         }
       }
     }
-    stage('Remove Unused docker image') {
+    stage('Deploy Dev') {
+      // Developer Branches
+      when {
+        not { branch 'master' }
+      }
       steps{
-        sh "docker rmi $registry:$BUILD_NUMBER"
+        echo 'Deployment started ...'
+        step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT, clusterName: env.CLUSTER, location: env.CLUSTER_ZONE, manifestPattern: 'deployment.yaml', credentialsId: env.JENKINS_ID, verifyDeployments: true])
+        echo "Deployment Finished ..."
       }
     }
   }
