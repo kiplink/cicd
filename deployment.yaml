@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cicd
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cicd
+  template:
+    metadata:
+      labels:
+        app: cicd
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: cicd
+        image: asia.ghcr.io/allcare-systems/cicd
+        ports:
+        - containerPort: 80
